@@ -38,20 +38,21 @@ export default function MessageList() {
 
   return (
     <ul className="space-y-2">
-      {messages.map((msg) => (
-        <li
-          key={msg.id}
-          className="flex justify-between border px-3 py-2 rounded"
-        >
-          <span>{msg.content}</span>
-          <button
-            className="text-red-500"
-            onClick={() => handleDelete(msg.id)}
-          >
-            Törlés
-          </button>
-        </li>
-      ))}
-    </ul>
+        {messages.map((msg) => (
+            <li
+            key={msg.id}
+            className="flex justify-between items-center bg-gray-50 border border-gray-200 px-3 py-2 rounded-lg"
+            >
+            <span className="text-gray-800">{msg.content}</span>
+
+            <button
+                onClick={() => handleDelete(msg.id)}
+                className="text-gray-400 hover:text-red-500 transition text-lg font-bold"
+            >
+                ×
+            </button>
+            </li>
+        ))}
+        </ul>
   )
 }

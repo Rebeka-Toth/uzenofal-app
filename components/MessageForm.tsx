@@ -25,21 +25,22 @@ export default function MessageForm({ onMessageAdded }: MessageFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="mb-6 flex gap-2">
-      <input
-        type="text"
-        className="flex-1 border px-3 py-2 rounded"
-        placeholder="Írj egy üzenetet..."
-        value={content}
-        onChange={(e) => setContent(e.target.value)}
-      />
-      <button
-        type="submit"
-        className="bg-blue-500 text-white px-4 py-2 rounded disabled:opacity-50"
-        disabled={loading}
-      >
-        {loading ? 'Mentés...' : 'Mentés'}
-      </button>
-    </form>
+        <form onSubmit={handleSubmit} className="flex gap-2 mb-4">
+        <input
+            type="text"
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            className="flex-1 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+            placeholder="Írj egy üzenetet..."
+        />
+
+        <button
+            type="submit"
+            disabled={loading}
+            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition disabled:opacity-50"
+        >
+            {loading ? '...' : 'Mentés'}
+        </button>
+        </form>
   )
 }
