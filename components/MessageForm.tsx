@@ -1,44 +1,45 @@
-'use client'  // required for client-side interactivity in Next.js App Router
-
+'use client'
 import { useState } from 'react'
-import { addMessage } from '../services/messageService'
+import { supabase } from '../lib/supabaseClient'
 
-export default function MessageForm({ onMessageAdded }: { onMessageAdded: () => void }) {
-    const [content, setContent] = useState('')
-    const [loading, setLoading] = useState(false)
+type MessageFormProps = {
+  onMessageAdded: () => void
+}
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault()
-        if (!content.trim()) return
+export default function MessageForm({ onMessageAdded }: MessageFormProps) {
+  const [content, setContent] = useState('')
+  const [loading, setLoading] = useState(false)
 
-        setLoading(true)
-        const result = await addMessage(content)
-        setLoading(false)
-
-        if (result) {
-            setContent('')       // clear input
-            onMessageAdded()     // notify parent to refresh messages
-        } else {
-            alert('Hiba történt az üzenet mentésekor.')
-        }
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!content) return
+    setLoading(true)
+    const { error } = await supabase.from('messages').insert([{ content }])
+    setLoading(false)
+    if (error) {
+      alert('Error saving message: ' + error.message)
+    } else {
+      setContent('')
+      onMessageAdded()
     }
+  }
 
-    return (
-        <form onSubmit={handleSubmit} className="flex gap-2">
-            <input
-                type="text"
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                placeholder="Írj egy üzenetet..."
-                className="flex-1 border rounded px-3 py-2"
-            />
-            <button
-                type="submit"
-                disabled={loading}
-                className="bg-blue-500 text-white px-4 py-2 rounded disabled:opacity-50"
-            >
-                {loading ? 'Mentés...' : 'Mentés'}
-            </button>
-        </form>
-    )
+  return (
+    <form onSubmit={handleSubmit} className="mb-6 flex gap-2">
+      <input
+        type="text"
+        className="flex-1 border px-3 py-2 rounded"
+        placeholder="Írj egy üzenetet..."
+        value={content}
+        onChange={(e) => setContent(e.target.value)}
+      />
+      <button
+        type="submit"
+        className="bg-blue-500 text-white px-4 py-2 rounded disabled:opacity-50"
+        disabled={loading}
+      >
+        {loading ? 'Mentés...' : 'Mentés'}
+      </button>
+    </form>
+  )
 }

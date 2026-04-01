@@ -1,3 +1,5 @@
+'use client'
+
 import MessageForm from '../components/MessageForm'
 import MessageList from '../components/MessageList'
 import { useState } from 'react'

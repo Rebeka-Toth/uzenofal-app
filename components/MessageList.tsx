@@ -1,62 +1,57 @@
 'use client'
-
 import { useEffect, useState } from 'react'
-import { getMessages, deleteMessage } from '../services/messageService'
+import { supabase } from '../lib/supabaseClient'
 
-interface Message {
-    id: string
-    content: string
-    created_at: string
+type Message = {
+  id: number
+  content: string
+  created_at: string
 }
 
 export default function MessageList() {
-    const [messages, setMessages] = useState<Message[]>([])
-    const [loading, setLoading] = useState(true)
+  const [messages, setMessages] = useState<Message[]>([])
 
-    const fetchMessages = async () => {
-        setLoading(true)
-        const data = await getMessages()
-        if (data) {
-            // sort in reverse chronological order
-            const sorted = data.sort(
-                (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-            )
-            setMessages(sorted)
-        }
-        setLoading(false)
+  const fetchMessages = async () => {
+    const { data, error } = await supabase
+      .from('messages')
+      .select('*')
+      .order('created_at', { ascending: false })
+    if (error) {
+      alert('Error fetching messages: ' + error.message)
+    } else {
+      setMessages(data)
     }
+  }
 
-    const handleDelete = async (id: string) => {
-        const confirmed = confirm('Biztosan törlöd ezt az üzenetet?')
-        if (!confirmed) return
-
-        const success = await deleteMessage(id)
-        if (success) {
-            setMessages(messages.filter((msg) => msg.id !== id))
-        } else {
-            alert('Hiba történt a törléskor.')
-        }
+  const handleDelete = async (id: number) => {
+    const { error } = await supabase.from('messages').delete().eq('id', id)
+    if (error) {
+      alert('Error deleting message: ' + error.message)
+    } else {
+      fetchMessages()
     }
+  }
 
-    useEffect(() => {
-        fetchMessages()
-    }, [])
+  useEffect(() => {
+    fetchMessages()
+  }, [])
 
-    if (loading) return <p>Üzenetek betöltése...</p>
-
-    return (
-        <ul className="space-y-2 mt-4">
-            {messages.map((msg) => (
-                <li key={msg.id} className="flex justify-between items-center border px-3 py-2 rounded">
-                    <span>{msg.content}</span>
-                    <button
-                        onClick={() => handleDelete(msg.id)}
-                        className="text-red-500 hover:underline"
-                    >
-                        Törlés
+  return (
+    <ul className="space-y-2">
+      {messages.map((msg) => (
+        <li
+          key={msg.id}
+          className="flex justify-between border px-3 py-2 rounded"
+        >
+          <span>{msg.content}</span>
+          <button
+            className="text-red-500"
+            onClick={() => handleDelete(msg.id)}
+          >
+            Törlés
           </button>
-                </li>
-            ))}
-        </ul>
-    )
+        </li>
+      ))}
+    </ul>
+  )
 }
